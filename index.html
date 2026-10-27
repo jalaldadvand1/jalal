@@ -1,0 +1,543 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+<title>برنامه شخصی جلال</title>
+
+<style>
+:root {
+  --bg: #f3f5f9;
+  --card: #ffffff;
+  --text: #182230;
+  --muted: #778197;
+  --primary: #4f46e5;
+  --green: #16a34a;
+  --border: #e8ebf1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Tahoma, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.9;
+}
+
+.container {
+  width: min(100% - 30px, 1000px);
+  margin: 30px auto;
+}
+
+header {
+  background: #111827;
+  color: white;
+  padding: 28px;
+  border-radius: 20px;
+  margin-bottom: 22px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 25px;
+}
+
+header p {
+  color: #cbd5e1;
+  margin-bottom: 0;
+}
+
+.date {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat, .card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 24px;
+  color: var(--primary);
+}
+
+.stat span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+h2 {
+  font-size: 19px;
+  margin: 28px 0 14px;
+}
+
+.progress {
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.progress div {
+  height: 100%;
+  width: 0%;
+  background: var(--green);
+  transition: width .3s;
+}
+
+.schedule {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.schedule-item {
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: white;
+}
+
+.schedule-item strong {
+  display: block;
+  color: var(--primary);
+  font-size: 14px;
+}
+
+.schedule-item span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+}
+
+.day-btn {
+  padding: 12px 5px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.day-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 5px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.task:last-child {
+  border-bottom: none;
+}
+
+.task input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--green);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.task.done .task-title {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+.task small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+button.action {
+  padding: 11px 16px;
+  border: none;
+  border-radius: 10px;
+  background: var(--primary);
+  color: white;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media(max-width:600px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .schedule {
+    grid-template-columns: 1fr;
+  }
+  .days {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  header h1 {
+    font-size: 21px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <div class="date" id="today"></div>
+  <h1>برنامه شخصی من</h1>
+  <p>مدیریت مغازه، یادگیری مهارت و زندگی شخصی</p>
+  <p>هدف: پیشرفت روزانه، بدون فراموش کردن استراحت</p>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <strong id="completed">0</strong>
+    <span>کارهای انجام شده</span>
+  </div>
+  <div class="stat">
+    <strong id="total">0</strong>
+    <span>کل کارهای هفته</span>
+  </div>
+  <div class="stat">
+    <strong id="percent">0%</strong>
+    <span>پیشرفت هفتگی</span>
+  </div>
+</div>
+
+<div class="card">
+  <strong>پیشرفت هفتگی</strong>
+  <div class="progress">
+    <div id="progressBar"></div>
+  </div>
+</div>
+
+<h2>برنامه روزانه</h2>
+
+<div class="schedule">
+
+  <div class="schedule-item">
+    <strong>07:30 – 08:30</strong>
+    <span>بیدار شدن، صبحانه و آماده شدن</span>
+  </div>
+
+  <div class="schedule-item">
+    <strong>09:00 – 13:00</strong>
+    <span>شیفت اول مغازه</span>
+  </div>
+
+  <div class="schedule-item">
+    <strong>13:00 – 14:30</strong>
+    <span>ناهار و استراحت</span>
+  </div>
+
+  <div class="schedule-item">
+    <strong>14:30 – 16:00</strong>
+    <span>یادگیری و تمرین اصلی</span>
+  </div>
+
+  <div class="schedule-item">
+    <strong>16:00 – 20:00</strong>
+    <span>شیفت دوم مغازه</span>
+  </div>
+
+  <div class="schedule-item">
+    <strong>20:00 – 21:00</strong>
+    <span>شام و استراحت</span>
+  </div>
+
+  <div class="schedule-item">
+    <strong>21:00 – 21:30</strong>
+    <span>تمرین سبک و مرور درس</span>
+  </div>
+
+  <div class="schedule-item">
+    <strong>21:30 – 23:00</strong>
+    <span>تفریح و زمان شخصی</span>
+  </div>
+
+</div>
+
+<h2>چک‌لیست هفتگی</h2>
+
+<div class="days" id="days"></div>
+
+<h2 id="dayTitle">کارهای امروز</h2>
+
+<div class="card" id="tasks"></div>
+
+<div class="actions">
+  <button class="action" onclick="resetDay()">
+    پاک کردن تیک‌های این روز
+  </button>
+  <button class="action secondary" onclick="resetWeek()">
+    شروع هفته جدید
+  </button>
+</div>
+
+<footer>
+  برنامه شخصی جلال | نسخه ۱.۰
+  <br>
+  هر روز یک قدم به جلو
+</footer>
+
+</div>
+
+<script>
+const days = [
+  {
+    name: "شنبه",
+    tasks: [
+      ["وردپرس", "یادگیری و تمرین وردپرس"],
+      ["Elementor", "تمرین طراحی یک صفحه"],
+      ["مرور", "مرور مطالب و یادداشت نکات"]
+    ]
+  },
+  {
+    name: "یکشنبه",
+    tasks: [
+      ["اینستاگرام", "یادگیری اصول تولید محتوا"],
+      ["ایده‌پردازی", "نوشتن سناریوی ریلز"],
+      ["تمرین", "نوشتن کپشن برای محصولات"]
+    ]
+  },
+  {
+    name: "دوشنبه",
+    tasks: [
+      ["ووکامرس", "یادگیری مدیریت فروشگاه"],
+      ["محصول", "افزودن یک محصول دمپایی"],
+      ["تمرین", "طراحی صفحه محصول"]
+    ]
+  },
+  {
+    name: "سه‌شنبه",
+    tasks: [
+      ["عکاسی", "عکاسی از محصولات مغازه"],
+      ["CapCut", "یادگیری تدوین ویدئو"],
+      ["تمرین", "ساخت یک ویدئوی معرفی محصول"]
+    ]
+  },
+  {
+    name: "چهارشنبه",
+    tasks: [
+      ["طراحی سایت", "طراحی صفحه فروشگاه"],
+      ["وردپرس", "تمرین ریسپانسیو"],
+      ["تمرین", "بهبود ظاهر سایت"]
+    ]
+  },
+  {
+    name: "پنجشنبه",
+    tasks: [
+      ["Canva", "یادگیری طراحی گرافیکی"],
+      ["پست", "طراحی پست اینستاگرام"],
+      ["استوری", "طراحی استوری تبلیغاتی"]
+    ]
+  },
+  {
+    name: "جمعه",
+    tasks: [
+      ["استراحت", "استراحت و تفریح"],
+      ["خانواده", "وقت گذراندن با خانواده"],
+      ["مرور اختیاری", "مرور سبک در صورت تمایل"]
+    ]
+  }
+];
+
+// شروع هفته از شنبه
+function getWeekKey() {
+  const date = new Date();
+  const day = (date.getDay() + 1) % 7;
+  date.setDate(date.getDate() - day);
+  return date.getFullYear() + "-" +
+    String(date.getMonth() + 1).padStart(2, "0") + "-" +
+    String(date.getDate()).padStart(2, "0");
+}
+
+let weekKey = getWeekKey();
+let selectedDay = (new Date().getDay() + 1) % 7;
+let storageKey = "jalal-planner-" + weekKey;
+
+function getSaved() {
+  try {
+    return JSON.parse(localStorage.getItem(storageKey)) || {};
+  } catch {
+    return {};
+  }
+}
+
+let saved = getSaved();
+
+function save() {
+  localStorage.setItem(storageKey, JSON.stringify(saved));
+  updateStats();
+}
+
+function renderDays() {
+  const container = document.getElementById("days");
+  container.innerHTML = "";
+
+  days.forEach((day, index) => {
+    const button = document.createElement("button");
+    button.className =
+      "day-btn" + (selectedDay === index ? " active" : "");
+    button.textContent = day.name;
+
+    button.onclick = () => {
+      selectedDay = index;
+      renderDays();
+      renderTasks();
+    };
+
+    container.appendChild(button);
+  });
+}
+
+function renderTasks() {
+  const day = days[selectedDay];
+  const container = document.getElementById("tasks");
+
+  document.getElementById("dayTitle").textContent =
+    "کارهای " + day.name;
+
+  container.innerHTML = "";
+
+  day.tasks.forEach((task, index) => {
+    const id = selectedDay + "-" + index;
+    const checked = !!saved[id];
+
+    const label = document.createElement("label");
+    label.className = "task" + (checked ? " done" : "");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = checked;
+
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        saved[id] = true;
+      } else {
+        delete saved[id];
+      }
+
+      label.classList.toggle("done", checkbox.checked);
+      save();
+    });
+
+    const text = document.createElement("div");
+    const title = document.createElement("span");
+    title.className = "task-title";
+    title.textContent = task[0];
+
+    const description = document.createElement("small");
+    description.textContent = task[1];
+
+    text.append(title, description);
+    label.append(checkbox, text);
+    container.appendChild(label);
+  });
+}
+
+function updateStats() {
+  let completed = 0;
+  let total = 0;
+
+  days.forEach((day, dayIndex) => {
+    day.tasks.forEach((task, taskIndex) => {
+      total++;
+      if (saved[dayIndex + "-" + taskIndex]) {
+        completed++;
+      }
+    });
+  });
+
+  const percent = Math.round(completed / total * 100);
+
+  document.getElementById("completed").textContent = completed;
+  document.getElementById("total").textContent = total;
+  document.getElementById("percent").textContent = percent + "%";
+  document.getElementById("progressBar").style.width = percent + "%";
+}
+
+function resetDay() {
+  if (!confirm("تیک‌های این روز پاک شوند؟")) return;
+
+  days[selectedDay].tasks.forEach((task, index) => {
+    delete saved[selectedDay + "-" + index];
+  });
+
+  save();
+  renderTasks();
+}
+
+function resetWeek() {
+  if (!confirm("تمام تیک‌های هفته پاک شوند؟")) return;
+
+  saved = {};
+  save();
+  renderTasks();
+}
+
+document.getElementById("today").textContent =
+  new Intl.DateTimeFormat("fa-IR", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  }).format(new Date());
+
+renderDays();
+renderTasks();
+updateStats();
+</script>
+
+</body>
+</html>
